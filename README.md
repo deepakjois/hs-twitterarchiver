@@ -1,7 +1,8 @@
 # Introduction
 
-This script will access your Twitter stream and create a text file with all 
-the past tweets in JSON format.
+This script will access your Twitter stream and create a text file with all
+the past tweets in JSON format. It also supports updating of the text file in
+subsequent runs.
 
 The Twitter API currently limits access to a maximum of 3200 tweets in your
 timeline. Hence if you have tweeted more often than that, you will not be able
