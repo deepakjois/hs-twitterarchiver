@@ -1,0 +1,21 @@
+Name:                hs-twitterarchiver
+Version:             0.1
+Description:         Commandline Twitter Feed Archiver
+License:             GPL
+License-file:        LICENSE
+Author:              Deepak Jois
+Maintainer:          deepak.jois@gmail.com
+Build-Type:          Simple
+synopsis:            Retrieves and stores an archive of a user's Twitter feed
+description:         `hs-twitterarchiver ` is a tool for generating an archive
+                     of a user's Twitter feed, in a file on a local computer
+                     using JSON format.
+
+category:            Text
+Cabal-Version:       >=1.2
+data-files:          README.md
+Executable           hs-twitterarchiver
+  hs-source-dirs:    .
+  main-is:           hs-twitterarchiver.hs
+  other-modules:     Archiver.Options, Archiver.Twitter, Archiver.Utils 
+  build-depends:     base >=3 && < 5, mtl, network, json, HTTP
