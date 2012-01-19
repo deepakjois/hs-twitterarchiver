@@ -126,23 +126,23 @@ fetchUrlResponse url = do
 -- Show usage information.
 help :: IO ()
 help = do
-    name <- getProgName
-    mapM_ putStrLn
-        [ "ABOUT"
-        , ""
-        , "This is a Twitter stream archiver program."
-        , ""
-        , "It will try to read a JSON file in the current"
-        , "folder and then fetch all newer tweets from Twtter"
-        , "and store them in the same file."
-        , ""
-        , "For example usage, check https://github.com/deepakjois/TwitterArchive"
-        , ""
-        , "USAGE"
-        , ""
-        , name ++ " <username>          Fetch and store tweets for given handle <username>"
-        , ""
-        ]
+  name <- getProgName
+  mapM_ putStrLn
+    [ "ABOUT"
+    , ""
+    , "This is a Twitter stream archiver program."
+    , ""
+    , "It will try to read a JSON file in the current"
+    , "folder and then fetch all newer tweets from Twtter"
+    , "and store them in the same file."
+    , ""
+    , "For example usage, check https://github.com/deepakjois/TwitterArchive"
+    , ""
+    , "USAGE"
+    , ""
+    , name ++ " <username>          Fetch and store tweets for given handle <username>"
+    , ""
+    ]
 
 -- Archive tweets of a user
 archive :: String -> IO ()
@@ -157,7 +157,7 @@ archive username = do
 -- | Main
 main :: IO ()
 main = do
-    args <- getArgs
-    case args of
-      [username] -> archive username
-      _          -> help
+  args <- getArgs
+  case args of
+    [username] -> archive username
+    _          -> help
