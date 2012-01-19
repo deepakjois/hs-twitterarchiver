@@ -30,7 +30,7 @@ import Text.PrettyPrint (render)
 
 data Tweet = Tweet String  -- text
                    String  -- created at
-                   Integer -- ID,
+                   Integer -- ID
 
 tweetId :: Tweet -> Integer
 tweetId (Tweet  _ _ i) = i
