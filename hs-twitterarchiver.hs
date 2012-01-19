@@ -8,7 +8,7 @@
 --
 -- Then run the program with no arguments for help info
 -- @
---      % hs-twitterarchiver <username>
+--      % hs-twitterarchiver
 -- @
 --
 module Main (main) where
