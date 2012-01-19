@@ -20,9 +20,8 @@ import System.IO.Error (try)
 import Network.HTTP (Response(..), simpleHTTP, getRequest, rspBody)
 import System.Environment (getProgName, getArgs)
 
-import Text.JSON (JSON, readJSON, showJSON, makeObj, resultToEither)
+import Text.JSON (JSON, Result(..), readJSON, showJSON, makeObj, resultToEither)
 import Text.JSON.Types (JSValue(..), JSObject, fromJSObject)
-import Text.JSON (Result(..))
 import Text.JSON.String (runGetJSON, readJSArray)
 import Text.JSON.Pretty (pp_value)
 
