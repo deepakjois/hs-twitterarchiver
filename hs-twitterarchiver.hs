@@ -74,7 +74,7 @@ twitterUrl username params
  where
   url = "http://twitter.com/" ++
         "statuses/user_timeline/" ++
-                                  username ++ ".json"
+        username ++ ".json"
 
   queryString = "?" ++ (intercalate "&" $ map (\(k,v) -> k ++ "=" ++ v) params)
 
