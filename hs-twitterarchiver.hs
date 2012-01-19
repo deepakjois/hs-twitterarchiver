@@ -1,4 +1,4 @@
--- | Module providing the main hs-twitterarichiver program
+-- | Module providing the main hs-twitterarchiver program
 --
 -- Install the program by running
 --
