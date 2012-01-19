@@ -7,6 +7,7 @@
 -- @
 --
 -- Then run the program with no arguments for help info
+--
 -- @
 --      % hs-twitterarchiver
 -- @
@@ -151,7 +152,7 @@ archive username = do
   putStrLn "Writing to archive file"
   writeTweetsToFile file allTweets
  where
-   file = username ++ ".json"
+  file = username ++ ".json"
 
 -- | Main
 main :: IO ()
