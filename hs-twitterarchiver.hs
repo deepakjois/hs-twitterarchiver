@@ -100,7 +100,6 @@ writeTweetsToFile file tweets = writeFile file $ (render . pp_value . showJSON) 
 -- Fetch all newer tweets and return a list of all tweets
 fetchTweets :: String -> [Tweet] -> IO [Tweet]
 fetchTweets username oldTweets = fetchTweets' oldTweets 1
-
  where
   additionalParams
       | sinceId oldTweets == 0 = []
@@ -115,6 +114,7 @@ fetchTweets username oldTweets = fetchTweets' oldTweets 1
       [] -> return tweetsSoFar -- Return all tweets found so far
       _  -> fetchTweets' (tweetsSoFar ++ tweets) (page + (1 :: Integer)) -- Fetch next page
 
+-- Fetch string response for given URL
 fetchUrlResponse :: String -> IO String
 fetchUrlResponse url = do
   resp <- simpleHTTP (getRequest url)
