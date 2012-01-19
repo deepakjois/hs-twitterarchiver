@@ -16,24 +16,16 @@ You need to have Haskell (GHC 6.10 or 6.12 should do) and Cabal installed.
 
 # Examples
 
-For all options, run `hs-twitterarchiver -h`
+For help, run `hs-twitterarchiver`
 
 Here is an example of how I use the script to archive all my tweets from 
-account `vyom` to a file called `vyom.json`. This is also the default behavior
-when `hs-twitterarchiver` is called without any arguments.
+account `vyom` to a file called `vyom.json`.
 
-    runhaskell twitterarchiver.hs -u vyom -f vyom.json
+    hs-twitterarchiver vyom
 
-If a file called `vyom.json` already exists from a previous run, only the
-latest Tweets after the previous run will be fetched and the file will be
-updated.
-
-If you have a private stream, you can call the script with a `-p` argument and
-you will be prompted for a password. The script will then automatically use
-HTTP Basic authentication when calling the Twitter API.
-
-    runhaskell twitterarchiver.hs -u divya -f divya.json -p
-    Enter Twitter Password :
+If a file called `vyom.json` already exists in the current folder from a previous run,
+only the latest Tweets after the previous run will be fetched and the file will 
+be updated.
 
 # Feedback
 
