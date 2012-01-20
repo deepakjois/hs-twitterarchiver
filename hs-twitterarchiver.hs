@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 -- | Module providing the main hs-twitterarchiver program
 --
 -- Install the program by running
@@ -14,52 +15,45 @@
 --
 module Main (main) where
 
-import Data.Either (rights)
 import Data.List (intercalate)
-import Control.Applicative ((<$>))
+import Data.String (fromString)
+import Control.Applicative ((<$>), (<*>), empty)
 import System.IO.Error (try)
 import Network.HTTP (Response(..), simpleHTTP, getRequest, rspBody)
 import System.Environment (getProgName, getArgs)
+import qualified Data.ByteString.Lazy.Char8 as B
 
-import Text.JSON (JSON, Result(..), readJSON, showJSON, makeObj, resultToEither)
-import Text.JSON.Types (JSValue(..), JSObject, fromJSObject)
-import Text.JSON.String (runGetJSON, readJSArray)
-import Text.JSON.Pretty (pp_value)
-
-import Text.PrettyPrint (render)
+import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), object, decode, (.=), (.:))
+import Data.Aeson.Encode.Pretty (encodePretty)
 
 data Tweet = Tweet String  -- text
                    String  -- created at
                    Integer -- ID
+                  deriving Show
 
 tweetId :: Tweet -> Integer
 tweetId (Tweet  _ _ i) = i
 
--- Making Tweet typeclass of JSON to enable decode/encode
-instance JSON Tweet where
-  showJSON (Tweet t c i) =
-     makeObj [ ("text", showJSON t)
-             , ("created_at", showJSON c)
-             , ("id", showJSON i)
-             ]
+instance ToJSON Tweet where
+  toJSON (Tweet t c i) = object [ "text"       .= t
+                                , "created_at" .= c
+                                , "id"         .= i
+                                ]
 
-  readJSON (JSObject obj) = do
-    i <- lookupM "id"
-    t <- lookupM "text"
-    c <- lookupM "created_at"
-    return $ Tweet t c i
-   where
-     jsonObjAssoc = fromJSObject obj
-     lookupM k     = maybe (Error "Property not found") readJSON $ lookup k jsonObjAssoc
+instance FromJSON Tweet where
+  parseJSON (Object v) = Tweet <$>
+                        v .: "text" <*>
+                        v .: "created_at" <*>
+                        v .: "id"
 
-  readJSON _ = undefined
+  parseJSON _ = empty
+
 
 -- Get array of Tweets from JSON String
-readTweetsFromJSON :: String -> [Tweet]
-readTweetsFromJSON tweetsJSON =
-  case runGetJSON readJSArray tweetsJSON of
-    Right (JSArray xs) -> rights $ map (resultToEither . readJSON) xs
-    _                  -> []
+readTweetsFromJSON :: B.ByteString -> [Tweet]
+readTweetsFromJSON tweetsJSON = case decode tweetsJSON of
+                                  Just t -> t
+                                  _      -> []
 
 -- Return the ID of the latest tweet in a list
 sinceId :: [Tweet] -> Integer
@@ -76,13 +70,13 @@ twitterUrl username params
         "statuses/user_timeline/" ++
         username ++ ".json"
 
-  queryString = "?" ++ (intercalate "&" $ map (\(k,v) -> k ++ "=" ++ v) params)
+  queryString = '?' : intercalate "&" (map (\(k,v) -> k ++ "=" ++ v) params)
 
 
 -- Return list of tweets read from a file
 readTweetsFromFile :: FilePath -> IO [Tweet]
 readTweetsFromFile f = do
-  result <- try (readFile f)
+  result <- try (B.readFile f)
   case result of
     Right json -> do
       putStrLn "Reading archive file"
@@ -90,12 +84,12 @@ readTweetsFromFile f = do
 
     Left ex    -> do
       putStrLn "Could not read archive file."
-      putStrLn (show ex)
+      print ex
       return []
 
 -- Write tweets to a given file
 writeTweetsToFile :: FilePath -> [Tweet] -> IO ()
-writeTweetsToFile file tweets = writeFile file $ (render . pp_value . showJSON) tweets
+writeTweetsToFile file tweets = B.writeFile file $ encodePretty tweets
 
 -- Fetch all newer tweets and return a list of all tweets
 fetchTweets :: String -> [Tweet] -> IO [Tweet]
@@ -109,10 +103,11 @@ fetchTweets username oldTweets = fetchTweets' oldTweets 1
     let params                   = [("count", "200"), ("page", show page)]
         url                      = twitterUrl username (params ++ additionalParams)
     putStrLn $ "Fetching tweets from " ++ url
-    tweets   <- readTweetsFromJSON <$> fetchUrlResponse url
+    tweets   <- (readTweetsFromJSON . fromString) <$> fetchUrlResponse url
+    putStrLn $ "Fetched " ++ show (length tweets) ++ " tweets"
     case tweets of
       [] -> return tweetsSoFar -- Return all tweets found so far
-      _  -> fetchTweets' (tweetsSoFar ++ tweets) (page + (1 :: Integer)) -- Fetch next page
+      _  -> fetchTweets' (tweets ++ tweetsSoFar) (page + (1 :: Integer)) -- Fetch next page
 
 -- Fetch string response for given URL
 fetchUrlResponse :: String -> IO String
@@ -147,7 +142,7 @@ help = do
 -- Archive tweets of a user
 archive :: String -> IO ()
 archive username = do
-  oldTweets <- readTweetsFromFile $ file
+  oldTweets <- readTweetsFromFile file
   allTweets <- fetchTweets username oldTweets
   putStrLn "Writing to archive file"
   writeTweetsToFile file allTweets
