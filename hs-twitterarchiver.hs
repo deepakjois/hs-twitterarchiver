@@ -92,12 +92,12 @@ writeTweetsToFile :: FilePath -> [Tweet] -> IO ()
 writeTweetsToFile file tweets = B.writeFile file $ encodePretty tweets
 
 -- Fetch all newer tweets and return a list of all tweets
-fetchTweets :: String -> [Tweet] -> IO [Tweet]
-fetchTweets username oldTweets = fetchTweets' oldTweets 1
+fetchTweets :: String -> Integer -> IO [Tweet]
+fetchTweets username sinceId_ = fetchTweets' [] 1
  where
   additionalParams
-      | sinceId oldTweets == 0 = []
-      | otherwise              = [("since_id", show $ sinceId oldTweets)]
+      | sinceId_ == 0 = []
+      | otherwise     = [("since_id", show sinceId_)]
 
   fetchTweets' tweetsSoFar page = do
     let params                   = [("count", "200"), ("page", show page)]
@@ -107,7 +107,7 @@ fetchTweets username oldTweets = fetchTweets' oldTweets 1
     putStrLn $ "Fetched " ++ show (length tweets) ++ " tweets"
     case tweets of
       [] -> return tweetsSoFar -- Return all tweets found so far
-      _  -> fetchTweets' (tweets ++ tweetsSoFar) (page + (1 :: Integer)) -- Fetch next page
+      _  -> fetchTweets' (tweetsSoFar ++ tweets) (page + (1 :: Integer)) -- Fetch next page
 
 -- Fetch string response for given URL
 fetchUrlResponse :: String -> IO String
@@ -143,7 +143,8 @@ help = do
 archive :: String -> IO ()
 archive username = do
   oldTweets <- readTweetsFromFile file
-  allTweets <- fetchTweets username oldTweets
+  newTweets <- fetchTweets username (sinceId oldTweets)
+  let allTweets = newTweets ++ oldTweets
   putStrLn "Writing to archive file"
   writeTweetsToFile file allTweets
  where
