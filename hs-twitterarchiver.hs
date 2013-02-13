@@ -66,7 +66,7 @@ twitterUrl username params
   | params == [] = url
   | otherwise    = url ++ queryString
  where
-  url = "http://twitter.com/" ++
+  url = "http://api.twitter.com/1/" ++
         "statuses/user_timeline/" ++
         username ++ ".json"
 
