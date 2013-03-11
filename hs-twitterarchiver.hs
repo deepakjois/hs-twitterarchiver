@@ -78,7 +78,7 @@ twitterUrl username params
 -- Return list of tweets read from a file
 readTweetsFromFile :: FilePath -> IO [Tweet]
 readTweetsFromFile f = do
-  result <- try (BS.readFile f >>= \r -> return (fromStrict r))
+  result <- try (BS.readFile f >>= \r -> return (B.pack (BS.unpack r)))
   case result of
     Right json -> do
       putStrLn "Reading archive file"
