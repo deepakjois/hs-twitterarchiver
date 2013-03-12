@@ -21,6 +21,8 @@ import Control.Applicative ((<$>), (<*>), empty)
 import System.IO.Error (try)
 import Network.HTTP (Response(..), simpleHTTP, getRequest, rspBody)
 import System.Environment (getProgName, getArgs)
+
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as B
 
 import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), object, decode, (.=), (.:))
@@ -76,7 +78,7 @@ twitterUrl username params
 -- Return list of tweets read from a file
 readTweetsFromFile :: FilePath -> IO [Tweet]
 readTweetsFromFile f = do
-  result <- try (B.readFile f)
+  result <- try (BS.readFile f >>= \r -> return (B.pack (BS.unpack r)))
   case result of
     Right json -> do
       putStrLn "Reading archive file"
