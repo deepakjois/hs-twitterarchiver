@@ -19,7 +19,8 @@ import Data.List (intercalate)
 import Data.String (fromString)
 import Control.Applicative ((<$>), (<*>), empty)
 import System.IO.Error (try)
-import Network.HTTP (Response(..), simpleHTTP, getRequest, rspBody)
+import Network.Browser (browse, setAllowRedirects, request)
+import Network.HTTP (Response(..), getRequest, rspBody)
 import System.Environment (getProgName, getArgs)
 
 import qualified Data.ByteString.Char8 as BS
@@ -114,11 +115,12 @@ fetchTweets username sinceId_ = fetchTweets' [] 1
 -- Fetch string response for given URL
 fetchUrlResponse :: String -> IO String
 fetchUrlResponse url = do
-  resp <- simpleHTTP (getRequest url)
+  (_, resp) <- browse $ do
+    setAllowRedirects True
+    request $ getRequest url
   case resp of
-    Left err                              -> error (show err)
-    Right result@(Response (2,_,_) _ _ _) -> return $ rspBody result
-    Right (Response code _ _ _)           -> error $ "Unknown Response " ++ show code
+    result@(Response (2,_,_) _ _ _) -> return $ rspBody result
+    Response code _ _ _             -> error $ "Unknown Response " ++ show code
 
 -- Show usage information.
 help :: IO ()
