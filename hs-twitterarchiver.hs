@@ -18,7 +18,7 @@ module Main (main) where
 import Data.List (intercalate)
 import Data.String (fromString)
 import Control.Applicative ((<$>), (<*>), empty)
-import System.IO.Error (try)
+import Control.Exception (try, SomeException)
 import Network.Browser (browse, setAllowRedirects, request)
 import Network.HTTP (Response(..), getRequest, rspBody)
 import System.Environment (getProgName, getArgs)
@@ -79,7 +79,7 @@ twitterUrl username params
 -- Return list of tweets read from a file
 readTweetsFromFile :: FilePath -> IO [Tweet]
 readTweetsFromFile f = do
-  result <- try (BS.readFile f >>= \r -> return (B.pack (BS.unpack r)))
+  result <- try (BS.readFile f >>= \r -> return (B.pack (BS.unpack r))) :: IO (Either SomeException B.ByteString)
   case result of
     Right json -> do
       putStrLn "Reading archive file"
